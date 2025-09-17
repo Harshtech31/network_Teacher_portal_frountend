@@ -20,10 +20,16 @@ jobs:
         cache: 'npm'
     
     - name: Install dependencies
-      run: npm ci
+      run: |
+        echo "📦 Installing dependencies..."
+        npm ci --production=false
     
     - name: Build React app
-      run: npm run build
+      run: |
+        echo "🔨 Building React app..."
+        npm run build
+        echo "✅ Build complete!"
+        ls -la build/
     
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -32,13 +38,15 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
     
+    - name: Test AWS credentials
+      run: |
+        echo "🔐 Testing AWS credentials..."
+        aws sts get-caller-identity
+        aws s3 ls s3://bits-event-portal-1758109556 || echo "Bucket access test"
+    
     - name: Deploy to S3
       run: |
         echo "🚀 Deploying to S3 bucket: bits-event-portal-1758109556"
-        aws s3 sync build/ s3://bits-event-portal-1758109556 --delete --cache-control "max-age=31536000,public" --exclude "*.html" --exclude "service-worker.js"
-        aws s3 sync build/ s3://bits-event-portal-1758109556 --delete --cache-control "max-age=0,no-cache,no-store,must-revalidate" --include "*.html" --include "service-worker.js"
+        aws s3 sync build/ s3://bits-event-portal-1758109556 --delete
         echo "✅ Deployment complete!"
         echo "🌐 Website: http://bits-event-portal-1758109556.s3-website-us-east-1.amazonaws.com"
-    
-    - name: Invalidate CloudFront (optional)
-      run: echo "Deployment complete to S3!"
