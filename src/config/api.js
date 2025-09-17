@@ -1,7 +1,7 @@
 // API Configuration for Teacher Portal
 const API_CONFIG = {
   // Use deployed AWS backend
-  BASE_URL: 'http://44.220.141.14:3001',
+  BASE_URL: 'http://54.197.165.209:3001',
   
   // API endpoints
   ENDPOINTS: {
