@@ -14,7 +14,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  ExternalLink
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -272,8 +273,22 @@ const Events = () => {
                     </div>
                     
                     <p className="text-gray-600 mb-3 line-clamp-2">
-                      {event.description}
+                      {event.description || 'No description provided'}
                     </p>
+                    
+                    {event.eventLink && (
+                      <div className="mb-3">
+                        <a 
+                          href={event.eventLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          Event Link
+                        </a>
+                      </div>
+                    )}
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500">
                       <div className="flex items-center">

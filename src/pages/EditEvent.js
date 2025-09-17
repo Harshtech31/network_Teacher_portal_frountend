@@ -194,15 +194,37 @@ const EditEvent = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description *
+                    Event Link *
+                  </label>
+                  <input
+                    type="url"
+                    className="form-input"
+                    placeholder="https://example.com/event-link"
+                    {...register('eventLink', {
+                      required: 'Event link is required',
+                      pattern: {
+                        value: /^https?:\/\/.+/i,
+                        message: 'Please enter a valid URL'
+                      }
+                    })}
+                  />
+                  {errors.eventLink && (
+                    <p className="mt-1 text-sm text-red-600">{errors.eventLink.message}</p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Link to event registration, meeting, or more details
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
                   </label>
                   <textarea
                     rows={4}
                     className="form-textarea"
-                    placeholder="Describe your event in detail"
+                    placeholder="Describe your event in detail (optional)"
                     {...register('description', {
-                      required: 'Event description is required',
-                      minLength: { value: 10, message: 'Description must be at least 10 characters' },
                       maxLength: { value: 2000, message: 'Description must be less than 2000 characters' }
                     })}
                   />
@@ -214,12 +236,13 @@ const EditEvent = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Category *
+                      Category
                     </label>
                     <select
                       className="form-select"
-                      {...register('category', { required: 'Category is required' })}
+                      {...register('category')}
                     >
+                      <option value="">Select a category (optional)</option>
                       {categories.map(category => (
                         <option key={category.value} value={category.value}>
                           {category.label}
