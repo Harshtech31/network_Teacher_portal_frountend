@@ -1,32 +1,31 @@
 import React from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Calendar, 
   Plus, 
-  LogOut, 
   User, 
   Menu,
   X
 } from 'lucide-react';
 
 const Layout = () => {
-  const { user, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  // Mock user data since we removed authentication
+  const user = {
+    firstName: 'Teacher',
+    lastName: 'Portal',
+    email: 'teacher@bitspilani.ae',
+    role: 'teacher'
+  };
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'My Events', href: '/events', icon: Calendar },
     { name: 'Create Event', href: '/events/create', icon: Plus },
   ];
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -142,16 +141,12 @@ const Layout = () => {
                 <User className="h-5 w-5 text-gray-600" />
               </div>
               <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-700">{user?.name}</p>
+                <p className="text-sm font-medium text-gray-700">{user?.firstName} {user?.lastName}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="ml-2 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                title="Logout"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
+              <div className="ml-2 p-2 text-gray-400" title="User Profile">
+                {/* Profile icon - no logout needed */}
+              </div>
             </div>
           </div>
         </div>
