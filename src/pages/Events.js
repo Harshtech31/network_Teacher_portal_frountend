@@ -60,7 +60,7 @@ const Events = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
+      const queryParams = new URLSearchParams();
       
       if (filters.search) queryParams.append('search', filters.search);
       if (filters.status) queryParams.append('status', filters.status);
@@ -68,11 +68,20 @@ const Events = () => {
       queryParams.append('page', pagination.currentPage);
       queryParams.append('limit', 10);
 
-      const response = await apiClient.get('/api/events', { params: queryParams });
+      const response = await apiClient.get(`/api/events?${queryParams.toString()}`);
       
       if (response.data.success) {
         setEvents(response.data.data.events);
-        setPagination(response.data.data.pagination);
+        // Update pagination if available, otherwise use simple data
+        if (response.data.data.pagination) {
+          setPagination(response.data.data.pagination);
+        } else {
+          setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalEvents: response.data.data.total || response.data.data.events.length
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -245,7 +254,7 @@ const Events = () => {
           <div className="space-y-4">
             {events.map((event) => (
               <div
-                key={event.eventId}
+                key={event.id}
                 className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between">
@@ -269,11 +278,11 @@ const Events = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-2" />
-                        {format(new Date(event.eventDate), 'MMM dd, yyyy')} at {event.startTime}
+                        {event.startDate ? format(new Date(event.startDate), 'MMM dd, yyyy') : 'Date TBD'}
                       </div>
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 mr-2" />
-                        {event.venue}
+                        {event.location || 'Location TBD'}
                       </div>
                       <div className="flex items-center">
                         <Users className="h-4 w-4 mr-2" />
@@ -284,7 +293,7 @@ const Events = () => {
                     
                     <div className="mt-3 flex items-center space-x-2">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
+                        {event.eventType ? event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1) : 'General'}
                       </span>
                       {event.registrationRequired && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -301,7 +310,7 @@ const Events = () => {
                   
                   <div className="flex items-center space-x-2 ml-4">
                     <Link
-                      to={`/events/${event.eventId}`}
+                      to={`/events/${event.id}`}
                       className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
                       title="View Details"
                     >
@@ -311,7 +320,7 @@ const Events = () => {
                     {event.status !== 'cancelled' && (
                       <>
                         <Link
-                          to={`/events/${event.eventId}/edit`}
+                          to={`/events/${event.id}/edit`}
                           className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-md"
                           title="Edit Event"
                         >
@@ -319,7 +328,7 @@ const Events = () => {
                         </Link>
                         
                         <button
-                          onClick={() => handleDeleteEvent(event.eventId)}
+                          onClick={() => handleDeleteEvent(event.id)}
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md"
                           title="Cancel Event"
                         >

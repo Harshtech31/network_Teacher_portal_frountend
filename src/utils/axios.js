@@ -10,13 +10,11 @@ const apiClient = axios.create({
   }
 });
 
-// Request interceptor to add auth token
+// No authentication required - simplified version
+// Request interceptor (no auth needed)
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('teacher_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    console.log('Making API request to:', config.baseURL + config.url);
     return config;
   },
   (error) => {
@@ -27,14 +25,11 @@ apiClient.interceptors.request.use(
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
   (response) => {
+    console.log('API response:', response.status, response.data);
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
-      localStorage.removeItem('teacher_token');
-      window.location.href = '/login';
-    }
+    console.error('API error:', error.response?.status, error.response?.data);
     return Promise.reject(error);
   }
 );

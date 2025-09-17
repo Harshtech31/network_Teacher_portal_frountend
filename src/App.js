@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
 import CreateEvent from './pages/CreateEvent';
 import EditEvent from './pages/EditEvent';
@@ -32,8 +31,7 @@ function App() {
         <Routes>
           {/* All routes are now public - no authentication */}
           <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route index element={<Navigate to="/events" replace />} />
             <Route path="events" element={<Events />} />
             <Route path="events/create" element={<CreateEvent />} />
             <Route path="events/:eventId/edit" element={<EditEvent />} />
@@ -41,7 +39,7 @@ function App() {
           </Route>
           
           {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/events" replace />} />
         </Routes>
       </div>
     </Router>

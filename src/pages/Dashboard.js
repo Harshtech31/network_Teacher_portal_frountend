@@ -24,15 +24,59 @@ const Dashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await apiClient.get('/api/teachers/dashboard');
+      // Fetch events data instead of dashboard stats
+      const response = await apiClient.get('/api/events');
       if (response.data.success) {
-        setStats(response.data.data);
+        const events = response.data.data.events;
+        
+        // Create simple stats from events data
+        const stats = {
+          totalEvents: events.length,
+          approvedEvents: events.filter(e => e.status === 'approved').length,
+          pendingEvents: events.filter(e => e.status === 'pending').length,
+          rejectedEvents: events.filter(e => e.status === 'rejected').length,
+          cancelledEvents: events.filter(e => e.status === 'cancelled').length,
+          upcomingEvents: events.filter(e => e.startDate && new Date(e.startDate) > new Date()).length,
+          recentEvents: events.slice(0, 5), // Get first 5 events
+          eventsByCategory: getEventsByCategory(events),
+          eventsByStatus: getEventsByStatus(events)
+        };
+        
+        setStats(stats);
       }
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
+      // Set default stats if API fails
+      setStats({
+        totalEvents: 0,
+        approvedEvents: 0,
+        pendingEvents: 0,
+        upcomingEvents: 0,
+        recentEvents: [],
+        eventsByCategory: [],
+        eventsByStatus: []
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const getEventsByCategory = (events) => {
+    const categories = {};
+    events.forEach(event => {
+      const category = event.eventType || 'Other';
+      categories[category] = (categories[category] || 0) + 1;
+    });
+    return Object.entries(categories).map(([name, value]) => ({ name, value }));
+  };
+
+  const getEventsByStatus = (events) => {
+    const statuses = {};
+    events.forEach(event => {
+      const status = event.status || 'Unknown';
+      statuses[status] = (statuses[status] || 0) + 1;
+    });
+    return Object.entries(statuses).map(([name, value]) => ({ name, value }));
   };
 
   if (loading) {
@@ -56,7 +100,7 @@ const Dashboard = () => {
   const statusCards = [
     {
       name: 'Total Events',
-      value: stats.totalEvents,
+      value: stats.totalEvents || 0,
       icon: Calendar,
       color: 'bg-blue-500',
       bgColor: 'bg-blue-50',
@@ -64,7 +108,7 @@ const Dashboard = () => {
     },
     {
       name: 'Pending Approval',
-      value: stats.pendingEvents,
+      value: stats.pendingEvents || 0,
       icon: Clock,
       color: 'bg-yellow-500',
       bgColor: 'bg-yellow-50',
@@ -72,15 +116,15 @@ const Dashboard = () => {
     },
     {
       name: 'Approved Events',
-      value: stats.approvedEvents,
+      value: stats.approvedEvents || 0,
       icon: CheckCircle,
       color: 'bg-green-500',
       bgColor: 'bg-green-50',
       textColor: 'text-green-600'
     },
     {
-      name: 'Total Participants',
-      value: stats.totalParticipants,
+      name: 'Upcoming Events',
+      value: stats.upcomingEvents || 0,
       icon: Users,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50',
@@ -89,9 +133,9 @@ const Dashboard = () => {
   ];
 
   // Prepare chart data
-  const categoryData = Object.entries(stats.eventsByCategory).map(([category, count]) => ({
-    category: category.charAt(0).toUpperCase() + category.slice(1),
-    count
+  const categoryData = (stats.eventsByCategory || []).map(item => ({
+    category: item.name.charAt(0).toUpperCase() + item.name.slice(1),
+    count: item.value
   }));
 
   const pieColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
@@ -235,20 +279,20 @@ const Dashboard = () => {
               </thead>
               <tbody className="table-body">
                 {stats.recentEvents.map((event) => (
-                  <tr key={event.eventId}>
+                  <tr key={event.id}>
                     <td className="font-medium text-gray-900">{event.title}</td>
                     <td className="text-gray-500">
-                      {format(new Date(event.eventDate), 'MMM dd, yyyy')}
+                      {event.startDate ? format(new Date(event.startDate), 'MMM dd, yyyy') : 'Date TBD'}
                     </td>
                     <td>
                       <span className={`status-badge status-${event.status}`}>
                         {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                       </span>
                     </td>
-                    <td className="text-gray-500">{event.participantCount}</td>
+                    <td className="text-gray-500">{event.participantCount || 0}</td>
                     <td>
                       <Link
-                        to={`/events/${event.eventId}`}
+                        to={`/events/${event.id}`}
                         className="text-primary-600 hover:text-primary-500"
                       >
                         <Eye className="h-4 w-4" />

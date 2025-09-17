@@ -36,7 +36,7 @@ const EventDetails = () => {
 
   const fetchEventDetails = async () => {
     try {
-      const response = await axios.get(`/api/teacher-portal/events/${eventId}`);
+      const response = await apiClient.get(`/api/events/${eventId}`);
       if (response.data.success) {
         setEvent(response.data.data.event);
       }
@@ -52,7 +52,7 @@ const EventDetails = () => {
   const fetchParticipants = async () => {
     try {
       setParticipantsLoading(true);
-      const response = await axios.get(`/api/teacher-portal/events/${eventId}/participants`);
+      const response = await apiClient.get(`/api/events/${eventId}/participants`);
       if (response.data.success) {
         setParticipants(response.data.data.participants);
       }

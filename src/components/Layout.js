@@ -1,7 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
   Calendar, 
   Plus, 
   User, 
@@ -22,8 +21,7 @@ const Layout = () => {
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'My Events', href: '/events', icon: Calendar },
+    { name: 'All Events', href: '/events', icon: Calendar },
     { name: 'Create Event', href: '/events/create', icon: Plus },
   ];
 
@@ -105,8 +103,8 @@ const Layout = () => {
                   <span className="text-white font-bold">BP</span>
                 </div>
                 <div className="ml-3">
-                  <h1 className="text-xl font-semibold text-gray-900">Teacher Portal</h1>
-                  <p className="text-sm text-gray-500">BITS Pilani Dubai NETWORK</p>
+                  <h1 className="text-xl font-semibold text-gray-900">Event Portal</h1>
+                  <p className="text-sm text-gray-500">BITS Pilani Dubai</p>
                 </div>
               </div>
             </div>
